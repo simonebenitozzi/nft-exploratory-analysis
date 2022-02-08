@@ -58,3 +58,5 @@ _, _, _ = plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=True)
 #%%
 
 # yabadababadabdubsvoidhvdshguovhvdvdhvo
+
+#blvbgdbdjufbaslfbcsai
