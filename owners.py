@@ -1,28 +1,24 @@
 #%%
 import os
 import sqlite3
-
 import matplotlib.pyplot as plt
 import nfts.dataset
-
-import numpy as np
 import pandas as pd
 
 #%% dataset opening
-os.listdir("C:/Users/simon/Downloads/nfts.sqlite")
-DATASET_PATH = "C:/Users/simon/Downloads/nfts.sqlite/nfts.sqlite"
+
+# =============================================================================
+# dirname = os.path.dirname(__file__)
+# DATASET_PATH = os.path.join(dirname, 'nfts.sqlite\\nfts.sqlite')
+# =============================================================================
+DATASET_PATH = "C:\\Users\\simon\\.spyder-py3\\nfts.sqlite\\nfts.sqlite"
 ds = nfts.dataset.FromSQLite(DATASET_PATH)
 
 # dataset description
 nfts.dataset.explain()
 
-# get dataframes
-nfts_df = ds.load_dataframe("nfts")
-mints_df = ds.load_dataframe("mints")
-transfers_df = ds.load_dataframe("transfers")
+# load current owners dataframe
 current_owners_df = ds.load_dataframe("current_owners")
-current_market_values_df = ds.load_dataframe("current_market_values")
-transfer_statistics_by_address_df = ds.load_dataframe("transfer_statistics_by_address")
 
 #%% Who owns NFTs?
 pd.set_option('display.max_columns', 10)
@@ -57,6 +53,3 @@ _, _, _ = plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=True)
 
 #%%
 
-# yabadababadabdubsvoidhvdshguovhvdvdhvo
-
-#blvbgdbdjufbaslfbcsai
