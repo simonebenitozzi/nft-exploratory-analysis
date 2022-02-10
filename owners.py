@@ -53,3 +53,4 @@ _, _, _ = plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=True)
 
 #%%
 
+# how much does the 1% (5, 10, 15, . . .) own?
