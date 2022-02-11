@@ -9,7 +9,8 @@ import nfts.dataset
 
 #%% dataset opening
 
-DATASET_PATH = "C:\\Users\\simon\\.spyder-py3\\datasets\\nfts.sqlite"
+dirname = os.path.dirname(__file__)
+DATASET_PATH = os.path.join(dirname, 'nfts.sqlite')
 ds = nfts.dataset.FromSQLite(DATASET_PATH)
 
 # dataset description
