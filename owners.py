@@ -42,12 +42,12 @@ low_scale_owners = [num_tokens for num_tokens in top_owners_df['num_tokens']
 
 plt.xlabel(f'Numbers of tokens owned - n < {scale_cutoff}')
 plt.ylabel('Numbers of addresses owning n tokens')
-_, _, _ = plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=False)
+plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=False)
 
-#%%
+#%% TODO merge those 2 blocks creating 2 separate plots
 
 plt.xlabel(f'Numbers of tokens owned - n < {scale_cutoff}')
 plt.ylabel('Numbers of addresses owning n tokens (log scale)')
-_, _, _ = plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=True)
+plt.hist(low_scale_owners, bins=int(scale_cutoff/50), log=True)
 
-#%%
+#%% Conclusions
