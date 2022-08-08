@@ -1,4 +1,2 @@
 data/nfts.sqlite
-__pycache__/
-.vscode/
 *.pyc
