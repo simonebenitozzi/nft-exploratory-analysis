@@ -1,8 +1,8 @@
 import streamlit as st
 from turtle import title
 
-from utilities.visualization_utils import color_palette_mapping
-from utilities.utils import nan_average
+from utils.visualization import color_palette_mapping
+from utils.numerical import nan_average
 import os
 import warnings
 import sqlite3
