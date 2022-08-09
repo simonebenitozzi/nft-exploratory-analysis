@@ -1,4 +1,5 @@
 import seaborn as sns
+import numpy as np
 
 # given a list of labels, assigns a color to each istance, based on its label
 def color_palette_mapping(labels):

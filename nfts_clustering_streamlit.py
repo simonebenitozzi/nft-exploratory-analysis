@@ -1,6 +1,8 @@
 import streamlit as st
+from turtle import title
 
-from utils import *
+from utilities.visualization_utils import color_palette_mapping
+from utilities.utils import nan_average
 import os
 import warnings
 import sqlite3
@@ -23,6 +25,10 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 from yellowbrick.cluster import SilhouetteVisualizer
 from kneed import KneeLocator
 import pyclustertend
+
+### --- Streamlit Configuration --- ###
+
+st.set_page_config(title="nfts Clustering", )
 
 nfts_merged_df = pd.read_csv("data/nfts_merged.csv")
 
