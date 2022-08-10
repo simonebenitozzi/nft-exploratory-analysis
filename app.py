@@ -32,7 +32,7 @@ from kneed import KneeLocator
 st.set_page_config(page_title="nfts Clutering", page_icon="img/NFT.png", layout="wide")
 
 nfts_merged_df = pd.read_csv("data/nfts_merged.csv")
-figs_dir = "img/figs/"
+pickle_dir = "data/pickle_vars/"
 ext = ".png"
 buffer = io.BytesIO()
 
@@ -72,8 +72,7 @@ cumulative_sum_variance = np.cumsum(pca.explained_variance_ratio_)
 st.write(f"The next chart shows the cumulative Variance explained by each of the 6 Principal Components")
 st.write(f"The 4 Principal Components alone explain {round(sum(pca.explained_variance_ratio_[0:4])*10000)/100}% of the Variance: it makes sense then, that the Clustering algorithms will be executed on the 4 principal components")
 
-fig_name = figs_dir+"variance_accumulation"+ext
-fig = plt.figure(figsize=(10,5))
+fig = plt.figure(figsize=(5,5))
 plt.plot(range(1, len(cumulative_sum_variance)+1), cumulative_sum_variance)
 plt.xlabel("Number of Components")
 _ = plt.ylabel("Explained Variance (%)")
@@ -139,12 +138,17 @@ st.header("K-Means Clustering")
 
 ## -- Elbow Method -- ##
 
-sum_squared_dist = []
 K = range(1,50)
-for k in K:
-    km = KMeans(n_clusters=k, random_state=0)
-    km = km.fit(x_pca_4)
-    sum_squared_dist.append(km.inertia_)
+try:
+    sum_squared_dist = pickle.load(open(pickle_dir+"sum_squared_dist", "rb"))
+except (OSError, IOError) as e:
+    sum_squared_dist = []
+    for k in K:
+        km = KMeans(n_clusters=k, random_state=0)
+        km = km.fit(x_pca_4)
+        sum_squared_dist.append(km.inertia_)
+    pickle.dump(sum_squared_dist, open(pickle_dir+"sum_squared_dist", "wb"))
+
 kn = KneeLocator(K, sum_squared_dist, curve='convex', direction='decreasing')
 
 fig = plt.figure(figsize=(10,7))
@@ -157,15 +161,20 @@ _ = plt.legend()
 plt.savefig(buffer, format="png")
 st.image(buffer)
 
+
 ## -- Silhouette Score -- ##
 
-silhouette_list = []
 K = range(2,15)
-for k in K:
-    km = KMeans(n_clusters=k, random_state=0)
-    km_labels = km.fit_predict(x_pca_4)
-    silhouette_avg = silhouette_score(x_pca_4, km_labels)
-    silhouette_list.append(silhouette_avg)
+try:
+    silhouette_list = pickle.load(open(pickle_dir+"silhouette_list", "rb"))
+except (OSError, IOError) as e:
+    silhouette_list = []
+    for k in K:
+        km = KMeans(n_clusters=k, random_state=0)
+        km_labels = km.fit_predict(x_pca_4)
+        silhouette_avg = silhouette_score(x_pca_4, km_labels)
+        silhouette_list.append(silhouette_avg)
+    pickle.dump(silhouette_list, open(pickle_dir+"silhouette_list", "wb"))
 
 fig = plt.figure(figsize=(10,7))
 _ = plt.plot(K,silhouette_list, 'bx-')
@@ -176,33 +185,47 @@ _ = plt.xticks(K)
 plt.savefig(buffer, format="png")
 st.image(buffer)
 
-## -- K Evaluation -- ##
+# ## -- K Evaluation -- ##
+# K = [2, 3, 4, 5]
 
-fig, ax = plt.subplots(2, 2, figsize=(30,15))
-k = 2
-for i in [2, 3, 4, 5]:
-    # Create KMeans instance for different number of clusters
-    km = KMeans(n_clusters=i, random_state=0)
-    q, mod = divmod(k, 2)
+# try:
+#     kms = pickle.load(open("kms", "rb"))
+# except (OSError, IOError) as e:
+#     kms = []
+#     for i in K:
+#         # Create KMeans instance for different number of clusters
+#         kms.append(KMeans(n_clusters=i, random_state=0))
+#     pickle.dump(kms, open(pickle_dir+"kms", "wb"))
 
-    # Create SilhouetteVisualizer instance with KMeans instance and Fit the visualizer
-    visualizer = SilhouetteVisualizer(km, colors='yellowbrick', ax=ax[q-1][mod])
-    visualizer.fit(x_pca_4)
+# fig, ax = plt.subplots(2, 2, figsize=(30,15))
+# k = 2
+# for i in K:
+#     km = kms[k-2]
+#     q, mod = divmod(k, 2)
 
-    ax[q-1][mod].set_title(f"Silhouette Score for k={i}")
-    ax[q-1][mod].set_xlabel("Silhouette Score")
-    ax[q-1][mod].set_ylabel("Istances")
+#     # Create SilhouetteVisualizer instance with KMeans instance and Fit the visualizer
+#     visualizer = SilhouetteVisualizer(km, colors='yellowbrick', ax=ax[q-1][mod])
+#     visualizer.fit(x_pca_4)
 
-    k+=1
-plt.savefig(buffer, format="png")
-st.image(buffer)
+#     ax[q-1][mod].set_title(f"Silhouette Score for k={i}")
+#     ax[q-1][mod].set_xlabel("Silhouette Score")
+#     ax[q-1][mod].set_ylabel("Istances")
 
-## -- K-Means with K=3 --##
+#     k+=1
+# plt.savefig(buffer, format="png")
+# st.image(buffer)
+
+## -- K-Means with K=3 -- ##
 st.subheader("K-Means with K=3")
 
-km = KMeans(n_clusters=3, random_state=0).fit(x_pca_4)
+try:
+    km3 = pickle.load(open(pickle_dir+"km3", "rb"))
+except (OSError, IOError) as e:
+    km3 = KMeans(n_clusters=3, random_state=0).fit(x_pca_4)
+    pickle.dump(km3, open(pickle_dir+"km3", "wb"))
+
 fig = plt.figure(figsize=(10,7))
-sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=km.labels_, palette=sns.color_palette(None, 3))
+sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=km3.labels_, palette=sns.color_palette(None, 3))
 _ = plt.title(f"K-Means Clustering plotted on 2 Principal Components (K=3)")
 _ = plt.xlabel("First Principal Component")
 _ = plt.ylabel("Second Principal Component")
@@ -211,7 +234,7 @@ st.image(buffer)
 
 fig = plt.figure(figsize=(15,10))
 ax = plt.axes(projection="3d")
-sctt = ax.scatter3D(x_pca_3[:,0], x_pca_3[:,1], x_pca_3[:,2], s=50, alpha=0.6, c=color_palette_mapping(km.labels_))
+sctt = ax.scatter3D(x_pca_3[:,0], x_pca_3[:,1], x_pca_3[:,2], s=50, alpha=0.6, c=color_palette_mapping(km3.labels_))
 _ = plt.title(f"K-Means Clustering plotted on 3 Principal Components (K=3)")
 _ = ax.set_xlabel("First Principal Component")
 _ = ax.set_ylabel("Second Principal Component")
@@ -222,7 +245,12 @@ st.image(buffer)
 ### --- DBSCAN Clustering --- ###
 st.header("DBSCAN Clustering")
 
-dbscan = DBSCAN().fit(x_pca_4)
+try:
+    dbscan = pickle.load(open(pickle_dir+"dbscan", "rb"))
+except (OSError, IOError) as e:
+    dbscan = DBSCAN().fit(x_pca_4)
+    pickle.dump(dbscan, open(pickle_dir+"dbscan", "wb"))
+
 n_clusters = len(np.unique(dbscan.labels_))
 fig = plt.figure(figsize=(10,7))
 sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=dbscan.labels_, palette=sns.color_palette(None, n_clusters))
@@ -244,8 +272,12 @@ st.image(buffer)
 
 ### --- OPTICS Clustering --- ###
 st.header("OPTICS Clustering")
+try:
+    optics = pickle.load(open(pickle_dir+"optics", "rb"))
+except (OSError, IOError) as e:
+    optics = OPTICS().fit(x_pca_4)
+    pickle.dump(optics, open(pickle_dir+"optics", "wb"))
 
-optics = OPTICS().fit(x_pca_4)
 n_clusters = len(np.unique(optics.labels_))
 fig = plt.figure(figsize=(10,7))
 sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=optics.labels_, palette=sns.color_palette(None, n_clusters)).legend_.remove()
