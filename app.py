@@ -2,19 +2,21 @@ import streamlit as st
 
 from utils.visualization import color_palette_mapping
 from utils.numerical import nan_average
-import os
-import warnings
-import sqlite3
+# import os
+# import sqlite3
+import pickle
+import io 
 
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
 import seaborn as sns
 
 import numpy as np
-import nfts.dataset
+# import nfts.dataset
 
 import pandas as pd
-import math
+# import math
+import cv2
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
@@ -23,13 +25,16 @@ from sklearn.metrics import silhouette_samples, silhouette_score
 
 from yellowbrick.cluster import SilhouetteVisualizer
 from kneed import KneeLocator
-import pyclustertend
+# import pyclustertend
 
 ### --- Streamlit Configuration --- ###
 
 st.set_page_config(page_title="nfts Clutering", page_icon="img/NFT.png", layout="wide")
 
 nfts_merged_df = pd.read_csv("data/nfts_merged.csv")
+figs_dir = "img/figs/"
+ext = ".png"
+buffer = io.BytesIO()
 
 ### --- Preprocessing: Imputation of NaN Values --- ###
 
@@ -67,13 +72,14 @@ cumulative_sum_variance = np.cumsum(pca.explained_variance_ratio_)
 st.write(f"The next chart shows the cumulative Variance explained by each of the 6 Principal Components")
 st.write(f"The 4 Principal Components alone explain {round(sum(pca.explained_variance_ratio_[0:4])*10000)/100}% of the Variance: it makes sense then, that the Clustering algorithms will be executed on the 4 principal components")
 
+fig_name = figs_dir+"variance_accumulation"+ext
 fig = plt.figure(figsize=(10,5))
 plt.plot(range(1, len(cumulative_sum_variance)+1), cumulative_sum_variance)
 plt.xlabel("Number of Components")
 _ = plt.ylabel("Explained Variance (%)")
 _ = plt.title("Variance Accumulation")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ## -- 2 Pricipal Components -- ##
 st.subheader("2 Principal Components")
@@ -87,8 +93,8 @@ sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50)
 _ = plt.title(f"2D Scatterplot: {round(cumulative_sum_variance[1]*10000)/100}% of variance captured")
 _ = plt.xlabel("First Principal Component")
 _ = plt.ylabel("Second Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ## -- 3 Pricipal Components -- ##
 st.subheader("3 Principal Components")
@@ -104,8 +110,8 @@ _ = plt.title(f"3D Scatterplot: {round(cumulative_sum_variance[2]*10000)/100}% o
 _ = ax.set_xlabel("First Principal Component")
 _ = ax.set_ylabel("Second Principal Component")
 _ = ax.set_zlabel("Third Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ## -- 4 Pricipal Components -- ##
 st.subheader("4 Principal Components")
@@ -121,8 +127,8 @@ plt.plot(x_pca_4)
 _ = plt.title(f"Transformed Data by PCA: {round(cumulative_sum_variance[3]*10000)/100}% variance")
 _ = plt.xlabel("Observation")
 _ = plt.ylabel("Transformed Data")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ### --- Clustering Tendency --- ###
 
@@ -148,8 +154,8 @@ _ = plt.xlabel('number of clusters k')
 _ = plt.ylabel('Sum of squared distances')
 _ = plt.vlines(kn.knee, plt.ylim()[0], plt.ylim()[1], linestyles='dashed', label=f"Elbow point: {kn.knee}")
 _ = plt.legend()
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ## -- Silhouette Score -- ##
 
@@ -167,8 +173,8 @@ _ = plt.title("Clustering Quality - Silhouette Score")
 _ = plt.xlabel('Number of clusters k')
 _ = plt.ylabel('Silhouette Score')
 _ = plt.xticks(K)
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ## -- K Evaluation -- ##
 
@@ -188,8 +194,8 @@ for i in [2, 3, 4, 5]:
     ax[q-1][mod].set_ylabel("Istances")
 
     k+=1
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ## -- K-Means with K=3 --##
 st.subheader("K-Means with K=3")
@@ -200,8 +206,8 @@ sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=km.labels_, palette=sn
 _ = plt.title(f"K-Means Clustering plotted on 2 Principal Components (K=3)")
 _ = plt.xlabel("First Principal Component")
 _ = plt.ylabel("Second Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 fig = plt.figure(figsize=(15,10))
 ax = plt.axes(projection="3d")
@@ -210,8 +216,8 @@ _ = plt.title(f"K-Means Clustering plotted on 3 Principal Components (K=3)")
 _ = ax.set_xlabel("First Principal Component")
 _ = ax.set_ylabel("Second Principal Component")
 _ = ax.set_zlabel("Third Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ### --- DBSCAN Clustering --- ###
 st.header("DBSCAN Clustering")
@@ -223,8 +229,8 @@ sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=dbscan.labels_, palett
 _ = plt.title(f"DBSCAN Clustering plotted on 2 Principal Components")
 _ = plt.xlabel("First Principal Component")
 _ = plt.ylabel("Second Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 fig = plt.figure(figsize=(15,10))
 ax = plt.axes(projection="3d")
@@ -233,8 +239,8 @@ _ = plt.title(f"DBSCAN Clustering plotted on 3 Principal Components")
 _ = ax.set_xlabel("First Principal Component")
 _ = ax.set_ylabel("Second Principal Component")
 _ = ax.set_zlabel("Third Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 ### --- OPTICS Clustering --- ###
 st.header("OPTICS Clustering")
@@ -246,8 +252,8 @@ sns.scatterplot(x=x_pca_2[:,0], y=x_pca_2[:,1], s=50, hue=optics.labels_, palett
 _ = plt.title(f"OPTICS Clustering plotted on 2 Principal Components")
 _ = plt.xlabel("First Principal Component")
 _ = plt.ylabel("Second Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
 
 fig = plt.figure(figsize=(15,10))
 ax = plt.axes(projection="3d")
@@ -256,5 +262,5 @@ _ = plt.title(f"OPTICS Clustering plotted on 3 Principal Components")
 _ = ax.set_xlabel("First Principal Component")
 _ = ax.set_ylabel("Second Principal Component")
 _ = ax.set_zlabel("Third Principal Component")
-
-st.pyplot(fig)
+plt.savefig(buffer, format="png")
+st.image(buffer)
