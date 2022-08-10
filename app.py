@@ -27,7 +27,7 @@ import pyclustertend
 
 ### --- Streamlit Configuration --- ###
 
-st.set_page_config(page_title="nfts Clutering", page_icon="img/NFT.png")
+st.set_page_config(page_title="nfts Clutering", page_icon="img/NFT.png", layout="wide")
 
 nfts_merged_df = pd.read_csv("data/nfts_merged.csv")
 
