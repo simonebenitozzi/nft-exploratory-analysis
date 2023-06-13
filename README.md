@@ -1,7 +1,5 @@
 # NFT Market Exploratory Analysis
 
-![NFT Market](https://example.com/nft_market.jpg)
-
 ## Overview
 
 This is a personal project where I conducted an exploratory analysis on the market of Non-Fungible Tokens (NFTs). NFTs have gained immense popularity in recent years, and I wanted to delve into the data to understand the trends, prices, changes, transactions, and mints associated with this emerging market. The project aimed to provide insights into the NFT market and visualize the data using various tools.
